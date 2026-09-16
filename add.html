@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Student Record</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sheet">
+
+  <div class="letterhead">
+    <h1>Student Records Registry</h1>
+    <div class="registry-mark">MINI-IS · REG-01</div>
+  </div>
+
+  <nav class="tabs">
+    <a href="index.html">View Records</a>
+    <a href="add.html" class="active">Add Record</a>
+  </nav>
+
+  <h2 class="section-title">Add a New Student</h2>
+  <p class="section-sub">Enter the student's ID number along with their details.</p>
+
+  <form class="card" id="addForm">
+    <div class="field">
+      <label for="studentId">Student ID</label>
+      <input type="text" id="studentId" required placeholder="e.g. 22103894">
+    </div>
+
+    <div class="field">
+      <label for="name">Full name</label>
+      <input type="text" id="name" required placeholder="e.g. Kyle C. Tubod">
+    </div>
+
+    <div class="field">
+      <label for="program">Program</label>
+      <input type="text" id="program" required placeholder="e.g. BS Information Technology">
+    </div>
+
+    <div class="field">
+      <label for="year">Year level</label>
+      <select id="year" required>
+        <option value="" disabled selected>Select year level</option>
+        <option>1st Year</option>
+        <option>2nd Year</option>
+        <option>3rd Year</option>
+        <option>4th Year</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" required placeholder="e.g. 22103894@usc.edu.ph">
+    </div>
+
+    <div class="field">
+      <label for="status">Status</label>
+      <select id="status" required>
+        <option>Enrolled</option>
+        <option>Inactive</option>
+        <option>Graduated</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save Record</button>
+      <a href="index.html" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+
+</div>
+
+<script src="repository.js"></script>
+<script>
+  document.getElementById("addForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const record = {
+      id: document.getElementById("studentId").value.trim(),
+      name: document.getElementById("name").value.trim(),
+      program: document.getElementById("program").value.trim(),
+      year: document.getElementById("year").value,
+      email: document.getElementById("email").value.trim(),
+      status: document.getElementById("status").value,
+    };
+    try {
+      const saved = StudentRepository.add(record);
+      location.href = `index.html?msg=${encodeURIComponent(`Record ${saved.id} added.`)}`;
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+</script>
+</body>
+</html>

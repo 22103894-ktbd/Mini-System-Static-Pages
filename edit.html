@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Student Record</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sheet">
+
+  <div class="letterhead">
+    <h1>Student Records Registry</h1>
+    <div class="registry-mark">MINI-IS · REG-01</div>
+  </div>
+
+  <nav class="tabs">
+    <a href="index.html">View Records</a>
+    <a href="add.html">Add Record</a>
+  </nav>
+
+  <div id="notFound" style="display:none;">
+    <h2 class="section-title">Record not found</h2>
+    <p class="section-sub">This student ID doesn't exist in the repository — it may already have been deleted.</p>
+    <a href="index.html" class="btn btn-ghost">Back to records</a>
+  </div>
+
+  <div id="editWrap" style="display:none;">
+    <h2 class="section-title">Edit Student <span class="rid" id="ridLabel"></span></h2>
+    <p class="section-sub">Update the fields below and save, or delete this record entirely.</p>
+
+    <form class="card" id="editForm">
+      <div class="field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" required>
+      </div>
+
+      <div class="field">
+        <label for="program">Program</label>
+        <input type="text" id="program" required>
+      </div>
+
+      <div class="field">
+        <label for="year">Year level</label>
+        <select id="year" required>
+          <option>1st Year</option>
+          <option>2nd Year</option>
+          <option>3rd Year</option>
+          <option>4th Year</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" required>
+      </div>
+
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" required>
+          <option>Enrolled</option>
+          <option>Inactive</option>
+          <option>Graduated</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="index.html" class="btn btn-ghost">Cancel</a>
+        <button type="button" class="btn btn-danger" id="deleteBtn" style="margin-left:auto;">Delete Record</button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<script src="repository.js"></script>
+<script>
+  const id = new URLSearchParams(location.search).get("id");
+  const record = id ? StudentRepository.getById(id) : null;
+
+  if (!record) {
+    document.getElementById("notFound").style.display = "block";
+  } else {
+    document.getElementById("editWrap").style.display = "block";
+    document.getElementById("ridLabel").textContent = record.id;
+    document.getElementById("name").value = record.name;
+    document.getElementById("program").value = record.program;
+    document.getElementById("year").value = record.year;
+    document.getElementById("email").value = record.email;
+    document.getElementById("status").value = record.status;
+
+    document.getElementById("editForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      StudentRepository.update(record.id, {
+        name: document.getElementById("name").value.trim(),
+        program: document.getElementById("program").value.trim(),
+        year: document.getElementById("year").value,
+        email: document.getElementById("email").value.trim(),
+        status: document.getElementById("status").value,
+      });
+      location.href = `index.html?msg=${encodeURIComponent(`Record ${record.id} updated.`)}`;
+    });
+
+    document.getElementById("deleteBtn").addEventListener("click", () => {
+      if (confirm(`Delete record ${record.id}? This cannot be undone.`)) {
+        StudentRepository.remove(record.id);
+        location.href = `index.html?msg=${encodeURIComponent(`Record ${record.id} deleted.`)}`;
+      }
+    });
+  }
+</script>
+</body>
+</html>

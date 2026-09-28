@@ -7,39 +7,33 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="sheet">
 
+<div class="sheet">
   <div class="letterhead">
     <h1>Student Records Registry</h1>
     <div class="registry-mark">MINI-IS · REG-01</div>
   </div>
-
   <nav class="tabs">
     <a href="index.html">View Records</a>
     <a href="add.html">Add Record</a>
   </nav>
-
   <div id="notFound" style="display:none;">
     <h2 class="section-title">Record not found</h2>
     <p class="section-sub">This student ID doesn't exist in the repository — it may already have been deleted.</p>
     <a href="index.html" class="btn btn-ghost">Back to records</a>
   </div>
-
   <div id="editWrap" style="display:none;">
     <h2 class="section-title">Edit Student <span class="rid" id="ridLabel"></span></h2>
     <p class="section-sub">Update the fields below and save, or delete this record entirely.</p>
-
     <form class="card" id="editForm">
       <div class="field">
         <label for="name">Full name</label>
         <input type="text" id="name" required>
       </div>
-
       <div class="field">
         <label for="program">Program</label>
         <input type="text" id="program" required>
       </div>
-
       <div class="field">
         <label for="year">Year level</label>
         <select id="year" required>
@@ -49,12 +43,10 @@
           <option>4th Year</option>
         </select>
       </div>
-
       <div class="field">
         <label for="email">Email</label>
         <input type="email" id="email" required>
       </div>
-
       <div class="field">
         <label for="status">Status</label>
         <select id="status" required>
@@ -63,7 +55,6 @@
           <option>Graduated</option>
         </select>
       </div>
-
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save Changes</button>
         <a href="index.html" class="btn btn-ghost">Cancel</a>
@@ -71,17 +62,17 @@
       </div>
     </form>
   </div>
-
 </div>
 
 <script src="repository.js"></script>
 <script>
-  const id = new URLSearchParams(location.search).get("id");
-  const record = id ? StudentRepository.getById(id) : null;
-
-  if (!record) {
-    document.getElementById("notFound").style.display = "block";
-  } else {
+  async function init(){
+    const id = new URLSearchParams(location.search).get("id");
+    const record = id ? await StudentRepository.getById(id) : null;
+    if(!record){
+      document.getElementById("notFound").style.display = "block";
+      return;
+    }
     document.getElementById("editWrap").style.display = "block";
     document.getElementById("ridLabel").textContent = record.id;
     document.getElementById("name").value = record.name;
@@ -89,26 +80,33 @@
     document.getElementById("year").value = record.year;
     document.getElementById("email").value = record.email;
     document.getElementById("status").value = record.status;
-
-    document.getElementById("editForm").addEventListener("submit", (e) => {
+    document.getElementById("editForm").addEventListener("submit", async (e) =>{
       e.preventDefault();
-      StudentRepository.update(record.id, {
-        name: document.getElementById("name").value.trim(),
-        program: document.getElementById("program").value.trim(),
-        year: document.getElementById("year").value,
-        email: document.getElementById("email").value.trim(),
-        status: document.getElementById("status").value,
-      });
-      location.href = `index.html?msg=${encodeURIComponent(`Record ${record.id} updated.`)}`;
+      try{
+        await StudentRepository.update(record.id,{
+          name: document.getElementById("name").value.trim(),
+          program: document.getElementById("program").value.trim(),
+          year: document.getElementById("year").value,
+          email: document.getElementById("email").value.trim(),
+          status: document.getElementById("status").value,
+        });
+        location.href = `index.html?msg=${encodeURIComponent(`Record ${record.id} updated.`)}`;
+      }catch (err){
+        alert(err.message);
+      }
     });
-
-    document.getElementById("deleteBtn").addEventListener("click", () => {
-      if (confirm(`Delete record ${record.id}? This cannot be undone.`)) {
-        StudentRepository.remove(record.id);
-        location.href = `index.html?msg=${encodeURIComponent(`Record ${record.id} deleted.`)}`;
+    document.getElementById("deleteBtn").addEventListener("click", async () =>{
+      if(confirm(`Delete record ${record.id}? This cannot be undone.`)){
+        try{
+          await StudentRepository.remove(record.id);
+          location.href = `index.html?msg=${encodeURIComponent(`Record ${record.id} deleted.`)}`;
+        } catch (err){
+          alert(err.message);
+        }
       }
     });
   }
+  init();
 </script>
 </body>
 </html>

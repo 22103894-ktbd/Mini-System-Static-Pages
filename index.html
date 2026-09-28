@@ -7,25 +7,28 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-
 <div class="sheet">
+
   <div class="letterhead">
     <h1>Student Records Registry</h1>
     <div class="registry-mark">MINI-IS · REG-01</div>
   </div>
+
   <nav class="tabs">
     <a href="index.html" class="active">View Records</a>
     <a href="add.html">Add Record</a>
   </nav>
 
   <div class="notice" id="notice"></div>
+
   <h2 class="section-title">All Students</h2>
   <p class="section-sub">Every enrolled and inactive record currently held in the repository.</p>
+
   <div class="toolbar">
     <input type="search" class="search" id="searchBox" placeholder="Search name, ID, or program…">
     <a href="add.html" class="btn btn-primary">+ New Record</a>
   </div>
+
   <table class="ledger" id="ledgerTable">
     <thead>
       <tr>
@@ -39,9 +42,11 @@
     </thead>
     <tbody id="ledgerBody"></tbody>
   </table>
+
   <div class="empty-state" id="emptyState" style="display:none;">
     No records match your search.
   </div>
+
 </div>
 
 <script src="repository.js"></script>
@@ -49,11 +54,13 @@
   const body = document.getElementById("ledgerBody");
   const empty = document.getElementById("emptyState");
   const searchBox = document.getElementById("searchBox");
-  function render(records){
+
+  function render(records) {
     body.innerHTML = "";
     empty.style.display = records.length ? "none" : "block";
     document.getElementById("ledgerTable").style.display = records.length ? "table" : "none";
-    records.forEach((r) =>{
+
+    records.forEach((r) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td class="rid">${r.id}</td>
@@ -69,37 +76,34 @@
       body.appendChild(tr);
     });
   }
-  function showNotice(msg){
+
+  function showNotice(msg) {
     const n = document.getElementById("notice");
     n.textContent = msg;
     n.classList.add("show");
     setTimeout(() => n.classList.remove("show"), 3500);
   }
-  async function refresh(term = ""){
-    try{
-      const records = term ? await StudentRepository.search(term) : await StudentRepository.getAll();
-      render(records);
-    }catch (err){
-      showNotice(err.message);
-    }
+
+  function refresh(term = "") {
+    render(term ? StudentRepository.search(term) : StudentRepository.getAll());
   }
-  body.addEventListener("click", async (e) =>{
+
+  body.addEventListener("click", (e) => {
     const id = e.target.getAttribute("data-delete");
-    if(!id) return;
+    if (!id) return;
     e.preventDefault();
-    if(confirm(`Delete record ${id}? This cannot be undone.`)){
-      try{
-        await StudentRepository.remove(id);
-        await refresh(searchBox.value);
-        showNotice(`Record ${id} deleted.`);
-      } catch (err) {
-        showNotice(err.message);
-      }
+    if (confirm(`Delete record ${id}? This cannot be undone.`)) {
+      StudentRepository.remove(id);
+      refresh(searchBox.value);
+      showNotice(`Record ${id} deleted.`);
     }
   });
+
   searchBox.addEventListener("input", () => refresh(searchBox.value));
+
   const params = new URLSearchParams(location.search);
   if (params.get("msg")) showNotice(params.get("msg"));
+
   refresh();
 </script>
 </body>
